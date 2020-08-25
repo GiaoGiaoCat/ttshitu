@@ -28,7 +28,7 @@ type ResponseBody struct {
 
 var ErrUsernameNotFound = errors.New("用户名或密码错误")
 
-func GetCode(req *RequestBody) (result string) {
+func IdentifyingCode(req *RequestBody) (result string) {
 	requestBody, err := json.Marshal(req)
 	// Debug: fmt.Println(string(requestBody))
 	if err != nil {

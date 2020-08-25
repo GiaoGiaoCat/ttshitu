@@ -17,8 +17,8 @@ import "github.com/GiaoGiaoCat/ttshitu"
 
 func main() {
   req := &ttshitu.RequestBody{Username: "Rocky", Password: "5454", Image: "xxxxx"}
-  // 调用 GetCode 方法，获取识别后的验证码，如果无法识别则返回空字符串。
-  code := ttshitu.GetCode(req)
+  // 调用 IdentifyingCode 方法，获取识别后的验证码，如果无法识别则返回空字符串。
+  code := ttshitu.IdentifyingCode(req)
   fmt.Println(code)
 }
 ```
