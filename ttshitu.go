@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"io"
 	"log"
 	"net/http"
@@ -26,73 +26,47 @@ type ResponseBody struct {
 	} `json:"data"`
 }
 
+var ErrUsernameNotFound = errors.New("用户名或密码错误")
+
 func GetCode(req *RequestBody) (result string) {
 	requestBody, err := json.Marshal(req)
 	// Debug: fmt.Println(string(requestBody))
 	if err != nil {
 		log.Println(err)
-
 		return
 	}
+
 	res, err := send(bytes.NewBuffer(requestBody))
 	// Check for response error
 	if err != nil {
 		log.Println(err)
-
 		return
 	}
 	// Close response body
 	defer res.Body.Close()
-	// Read response data
-	// data, err := ioutil.ReadAll(res.Body)
-	// if err != nil {
-	// 	log.Println(err)
-
-	// 	return
-	// }
-	// Debug: fmt.Printf("%s\n", data)
-	// fmt.Printf("%s\n", data)
-
-	var resBody ResponseBody
-	err = json.NewDecoder(res.Body).Decode(&resBody)
+	result, err = decoder(res.Body)
 	if err != nil {
 		log.Println(err)
-
 		return
 	}
-
-	fmt.Printf("%+v", resBody)
-
-	result = resBody.Data.Result
-
-	// fmt.Printf("%+v", resBody)
-	// fmt.Printf("%+v", resBody)
-
-	// return resBody.Data.Result, nil
-	// result = "111"
-	// result, err = decoder(res.Body)
-	// if err != nil {
-	// 	log.Println(err)
-
-	// 	return
-	// }
 
 	return result
 }
 
-// func decoder(body io.Reader) (result string, err error) {
-// 	var resBody ResponseBody
-// 	// Try to decode the request body into the struct. If there is an error,
-// 	// respond to the client with the error message and a 400 status code.
-// 	err = json.NewDecoder(body).Decode(&resBody)
-// 	if err != nil {
-// 		log.Println(err)
+func decoder(body io.Reader) (result string, err error) {
+	var resBody ResponseBody
+	err = json.NewDecoder(body).Decode(&resBody)
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
 
-// 		return "", err
-// 	}
+	if !resBody.Success {
+		return "", ErrUsernameNotFound
+	}
 
-// 	return resBody.Data.Result, nil
-// }
+	return resBody.Data.Result, nil
+}
 
 func send(body io.Reader) (*http.Response, error) {
 	// Pass context.Background() to SendWithContext

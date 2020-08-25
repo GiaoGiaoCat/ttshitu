@@ -50,6 +50,7 @@ linters:
     - gocyclo
     - wsl # 和 gofumpt 冲突
     - gomnd
+    - nlreturn
 
 run:
   skip-dirs:
